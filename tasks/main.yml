@@ -38,7 +38,7 @@
     owner: "{{ pgbouncer_user }}"
     group: "{{ pgbouncer_group }}"
     mode: "0640"
-  notify: reload pgbouncer
+  notify: restart pgbouncer
 
 - name: Render userlist.txt
   ansible.builtin.template:
