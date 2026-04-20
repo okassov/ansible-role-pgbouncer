@@ -1,0 +1,40 @@
+---
+
+- name: Install pgbouncer
+  ansible.builtin.apt:
+    name: "{{ pgbouncer_package }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure log directory exists
+  ansible.builtin.file:
+    path: "{{ pgbouncer_log_dir }}"
+    state: directory
+    owner: "{{ pgbouncer_user }}"
+    group: "{{ pgbouncer_group }}"
+    mode: "0755"
+
+- name: Render pgbouncer.ini
+  ansible.builtin.template:
+    src: pgbouncer.ini.j2
+    dest: "{{ pgbouncer_ini_path }}"
+    owner: "{{ pgbouncer_user }}"
+    group: "{{ pgbouncer_group }}"
+    mode: "0640"
+  notify: reload pgbouncer
+
+- name: Render userlist.txt
+  ansible.builtin.template:
+    src: userlist.txt.j2
+    dest: "{{ pgbouncer_userlist_path }}"
+    owner: "{{ pgbouncer_user }}"
+    group: "{{ pgbouncer_group }}"
+    mode: "0640"
+  notify: reload pgbouncer
+
+- name: Ensure pgbouncer service
+  ansible.builtin.systemd:
+    name: "{{ pgbouncer_service }}"
+    enabled: "{{ pgbouncer_service_enabled }}"
+    state: "{{ pgbouncer_service_state }}"

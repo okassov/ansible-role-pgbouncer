@@ -1,0 +1,44 @@
+{{ ansible_managed | comment }}
+
+[databases]
+{% for db in pgbouncer_databases %}
+{{ db.name }} ={% if db.host is defined %} host={{ db.host }}{% endif %}{% if db.port is defined %} port={{ db.port }}{% endif %}{% if db.dbname is defined %} dbname={{ db.dbname }}{% endif %}{% if db.user is defined %} user={{ db.user }}{% endif %}{% if db.password is defined %} password={{ db.password }}{% endif %}{% if db.pool_size is defined %} pool_size={{ db.pool_size }}{% endif %}{% if db.pool_mode is defined %} pool_mode={{ db.pool_mode }}{% endif %}{% if db.connect_query is defined %} connect_query='{{ db.connect_query }}'{% endif %}
+
+{% endfor %}
+
+[pgbouncer]
+logfile = {{ pgbouncer_log_dir }}/pgbouncer.log
+pidfile = {{ pgbouncer_run_dir }}/pgbouncer.pid
+listen_addr = {{ pgbouncer_listen_addr }}
+listen_port = {{ pgbouncer_listen_port }}
+unix_socket_dir = {{ pgbouncer_unix_socket_dir }}
+
+auth_type = {{ pgbouncer_auth_type }}
+auth_file = {{ pgbouncer_userlist_path }}
+auth_user = {{ pgbouncer_auth_user }}
+auth_dbname = {{ pgbouncer_auth_dbname }}
+auth_query = {{ pgbouncer_auth_query }}
+
+admin_users = {{ pgbouncer_admin_users | join(',') }}
+stats_users = {{ pgbouncer_stats_users | join(',') }}
+
+pool_mode = {{ pgbouncer_pool_mode }}
+server_reset_query = {{ pgbouncer_server_reset_query }}
+max_client_conn = {{ pgbouncer_max_client_conn }}
+default_pool_size = {{ pgbouncer_default_pool_size }}
+reserve_pool_size = {{ pgbouncer_reserve_pool_size }}
+reserve_pool_timeout = {{ pgbouncer_reserve_pool_timeout }}
+max_db_connections = {{ pgbouncer_max_db_connections }}
+max_user_connections = {{ pgbouncer_max_user_connections }}
+query_wait_timeout = {{ pgbouncer_query_wait_timeout }}
+ignore_startup_parameters = {{ pgbouncer_ignore_startup_parameters }}
+max_prepared_statements = {{ pgbouncer_max_prepared_statements }}
+
+pkt_buf = {{ pgbouncer_pkt_buf }}
+listen_backlog = {{ pgbouncer_listen_backlog }}
+so_reuseport = {{ pgbouncer_so_reuseport }}
+log_connections = {{ pgbouncer_log_connections }}
+log_disconnections = {{ pgbouncer_log_disconnections }}
+{% for k, v in pgbouncer_extra_settings.items() %}
+{{ k }} = {{ v }}
+{% endfor %}

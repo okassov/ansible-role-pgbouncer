@@ -1,0 +1,69 @@
+---
+
+# Package
+pgbouncer_package: pgbouncer
+
+# Paths
+pgbouncer_conf_dir: /etc/pgbouncer
+pgbouncer_ini_path: "{{ pgbouncer_conf_dir }}/pgbouncer.ini"
+pgbouncer_userlist_path: "{{ pgbouncer_conf_dir }}/userlist.txt"
+pgbouncer_log_dir: /var/log/pgbouncer
+pgbouncer_run_dir: /run/pgbouncer
+pgbouncer_user: postgres
+pgbouncer_group: postgres
+
+# Service
+pgbouncer_service: pgbouncer
+pgbouncer_service_enabled: true
+pgbouncer_service_state: started
+
+# Network
+pgbouncer_listen_addr: "0.0.0.0"
+pgbouncer_listen_port: 6432
+pgbouncer_unix_socket_dir: /var/run/pgbouncer
+
+# Auth
+pgbouncer_auth_type: md5
+pgbouncer_auth_user: pgbouncer
+pgbouncer_auth_dbname: postgres
+pgbouncer_auth_query: "SELECT usename, passwd FROM user_search($1)"
+pgbouncer_admin_users: [postgres]
+pgbouncer_stats_users: [postgres]
+
+# Pooling
+pgbouncer_pool_mode: transaction
+pgbouncer_server_reset_query: DISCARD ALL
+pgbouncer_max_client_conn: 10000
+pgbouncer_default_pool_size: 10
+pgbouncer_reserve_pool_size: 1
+pgbouncer_reserve_pool_timeout: 1
+pgbouncer_max_db_connections: 1000
+pgbouncer_max_user_connections: 100
+pgbouncer_query_wait_timeout: 120
+pgbouncer_ignore_startup_parameters: extra_float_digits
+pgbouncer_max_prepared_statements: 0
+
+# Misc
+pgbouncer_pkt_buf: 4096
+pgbouncer_listen_backlog: 128
+pgbouncer_so_reuseport: 1
+pgbouncer_log_connections: 0
+pgbouncer_log_disconnections: 0
+
+# Databases — list of dicts
+# - name: cars
+#   dbname: cars
+#   host: /var/run/postgresql
+#   port: 5432
+#   pool_size: 50
+#   pool_mode: transaction   # optional per-db override
+# Special catch-all entry: use name "*"
+pgbouncer_databases: []
+
+# Userlist entries for auth_user (and any static users)
+# - user: pgbouncer
+#   password: "md5xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+pgbouncer_userlist: []
+
+# Extra free-form [pgbouncer] settings (dict) — merged last, overrides all
+pgbouncer_extra_settings: {}
