@@ -15,6 +15,22 @@
     group: "{{ pgbouncer_group }}"
     mode: "0755"
 
+- name: Ensure runtime directory exists now
+  ansible.builtin.file:
+    path: "{{ pgbouncer_run_dir }}"
+    state: directory
+    owner: "{{ pgbouncer_user }}"
+    group: "{{ pgbouncer_group }}"
+    mode: "0755"
+
+- name: Persist runtime directory across reboots via tmpfiles.d
+  ansible.builtin.copy:
+    dest: /etc/tmpfiles.d/pgbouncer.conf
+    content: "d {{ pgbouncer_run_dir }} 0755 {{ pgbouncer_user }} {{ pgbouncer_group }} -\n"
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: Render pgbouncer.ini
   ansible.builtin.template:
     src: pgbouncer.ini.j2
