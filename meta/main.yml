@@ -1,18 +1,23 @@
 ---
+dependencies: []
 
 galaxy_info:
+  role_name: pgbouncer
   author: okassov
   description: Minimal PgBouncer role for Debian/Ubuntu
-  license: MIT
-  min_ansible_version: "2.12"
+  company: "qCloudy"
+  license: "MIT"
+  min_ansible_version: 2.12
   platforms:
     - name: Ubuntu
       versions:
         - jammy
         - noble
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
   galaxy_tags:
     - postgresql
     - pgbouncer
     - database
-
-dependencies: []
