@@ -30,6 +30,15 @@ pgbouncer_auth_query: "SELECT usename, passwd FROM user_search($1)"
 pgbouncer_admin_users: [postgres]
 pgbouncer_stats_users: [postgres]
 
+# Default auth_query above calls user_search() — a SECURITY DEFINER function that
+# returns (usename, passwd) from pg_shadow. PgBouncer needs it to authenticate
+# any role not listed in userlist.txt. When enabled, the role creates the
+# function in pgbouncer_auth_dbname and grants EXECUTE to pgbouncer_auth_user.
+# Requires a local PostgreSQL reachable by the postgres OS user (peer auth) and
+# psycopg2 on the host. Leave false for split-host setups (PgBouncer on a
+# separate VM) — there create user_search() out of band, next to the database.
+pgbouncer_manage_auth_query_function: false
+
 # Pooling
 pgbouncer_pool_mode: transaction
 pgbouncer_server_reset_query: DISCARD ALL

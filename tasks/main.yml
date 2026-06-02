@@ -54,3 +54,54 @@
     name: "{{ pgbouncer_service }}"
     enabled: "{{ pgbouncer_service_enabled }}"
     state: "{{ pgbouncer_service_state }}"
+
+# auth_query function (user_search) for password lookup of roles absent from
+# userlist.txt. SECURITY DEFINER so it can read pg_shadow; EXECUTE granted only
+# to the auth_user. Runs as the postgres OS user via local peer auth.
+- name: Manage auth_query function (user_search)
+  when: pgbouncer_manage_auth_query_function | bool
+  become: true
+  become_user: "{{ pgbouncer_user }}"
+  block:
+    - name: Check whether user_search() already exists
+      community.postgresql.postgresql_query:
+        db: "{{ pgbouncer_auth_dbname }}"
+        query: >-
+          SELECT 1 FROM pg_proc p
+          JOIN pg_namespace n ON n.oid = p.pronamespace
+          WHERE n.nspname = 'public' AND p.proname = 'user_search'
+      register: _pgbouncer_user_search
+      changed_when: false
+
+    - name: Create user_search() in auth_dbname
+      when: (_pgbouncer_user_search.rowcount | default(0) | int) == 0
+      community.postgresql.postgresql_query:
+        db: "{{ pgbouncer_auth_dbname }}"
+        query: |
+          CREATE FUNCTION public.user_search(uname text)
+            RETURNS TABLE (usename name, passwd text)
+            LANGUAGE sql
+            STABLE
+            SECURITY DEFINER
+            SET search_path = pg_catalog
+            AS 'SELECT usename, passwd FROM pg_shadow WHERE usename = uname';
+
+    - name: Revoke EXECUTE on user_search() from PUBLIC
+      community.postgresql.postgresql_privs:
+        db: "{{ pgbouncer_auth_dbname }}"
+        type: function
+        schema: public
+        obj: user_search(text)
+        roles: PUBLIC
+        privs: EXECUTE
+        state: absent
+
+    - name: Grant EXECUTE on user_search() to auth_user
+      community.postgresql.postgresql_privs:
+        db: "{{ pgbouncer_auth_dbname }}"
+        type: function
+        schema: public
+        obj: user_search(text)
+        roles: "{{ pgbouncer_auth_user }}"
+        privs: EXECUTE
+        state: present
