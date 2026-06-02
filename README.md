@@ -49,7 +49,7 @@ default) and create `user_search()` next to the database yourself.
 ```yaml
 roles:
   - name: okassov.pgbouncer
-    version: v0.1.3
+    version: v0.1.4
 ```
 
 Playbook:
